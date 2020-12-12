@@ -12,10 +12,24 @@ app.use(session({
     saveUninitialized: true
 }))
 
+app.use(express.urlencoded({extended: true}));
+
 //routes
 app.get("/", function(req, res){
-    res.send("Login form will go here!");
+    res.render("index");
 });
+
+app.post("/", function(req,res){
+    let username = req.body.username;
+    let password = req.body.password;
+    console.log("username:" + username);
+    console.log("password:" + password);
+    if(username =='admin' && password=='secret') {
+        res.render("welcome");
+    } else {
+        res.render("index", {"loginError":true});
+    }
+})
 
 //Listener
 app.listen(8080, "0.0.0.0", function(){
