@@ -26,12 +26,22 @@ app.post("/", async function(req,res){
     let hashedPwd = "$2a$10$06ofFgXJ9wysAOzQh0D0..RcDp1w/urY3qhO6VuUJL2c6tzAJPfj6";
     let passwordMatch = await checkPassword(password, hashedPwd);
     
-    if(username =='admin' && password=='secret') {
+    if(username =='admin' && passwordMatch) {
+        req.session.authenticated = true;
         res.render("welcome");
     } else {
         res.render("index", {"loginError":true});
     }
-})
+});
+
+app.get("/myAccount", isAuthenticated, function(req, res){
+    res.render("account");
+});
+
+app.get("/logout", function(req,res) {
+    req.session.destroy();
+    res.redirect("/");
+});
 
 function checkPassword(password, hashedValue) {
     return new Promise( function(resolve, reject){
@@ -41,6 +51,14 @@ function checkPassword(password, hashedValue) {
         })
     })
 }
+function isAuthenticated(req,res, next) {
+    if(!req.session.authenticated){
+        res.redirect("/");
+    } else {
+        next();
+    }
+}
+
 
 //Listener
 app.listen(8080, "0.0.0.0", function(){
